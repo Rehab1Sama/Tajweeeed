@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "نور التجويد"
+version = "1.0.0"
+id = "artifacts/tajweed-platform"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21380
+
+[services.development]
+run = "pnpm --filter @workspace/tajweed-platform run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tajweed-platform", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/tajweed-platform/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21380"
+BASE_PATH = "/"

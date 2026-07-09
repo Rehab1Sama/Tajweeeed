@@ -1,22 +1,40 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Tajweed Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: users
+  - name: courses
+  - name: lessons
+  - name: tajweedRules
+  - name: enrollments
+  - name: assignments
+  - name: audioRecordings
+  - name: messages
+  - name: announcements
+  - name: certificates
+  - name: payments
+  - name: applications
+  - name: progress
+  - name: dashboard
+  - name: weeklyStar
+  - name: dailyWird
+  - name: commentTemplates
+  - name: audioLibrary
+  - name: studentNotes
+  - name: stats
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +42,1216 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Users ──────────────────────────────────────────────────────────────────
+  /users/me:
+    get:
+      operationId: getCurrentUser
+      tags: [users]
+      summary: Get current authenticated user profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+
+  /users/sync:
+    post:
+      operationId: syncUser
+      tags: [users]
+      summary: Sync/provision user after Clerk sign-in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSyncInput"
+      responses:
+        "200":
+          description: User synced
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # ── Courses ─────────────────────────────────────────────────────────────────
+  /courses:
+    get:
+      operationId: listCourses
+      tags: [courses]
+      summary: List all courses
+      responses:
+        "200":
+          description: Courses list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+    post:
+      operationId: createCourse
+      tags: [courses]
+      summary: Create a new course (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+
+  /courses/{id}:
+    get:
+      operationId: getCourse
+      tags: [courses]
+      summary: Get a course by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateCourse
+      tags: [courses]
+      summary: Update a course (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+    delete:
+      operationId: deleteCourse
+      tags: [courses]
+      summary: Delete a course (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Lessons ─────────────────────────────────────────────────────────────────
+  /lessons:
+    get:
+      operationId: listLessons
+      tags: [lessons]
+      summary: List all lessons (always accessible to authenticated users)
+      parameters:
+        - name: level
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lessons list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lesson"
+    post:
+      operationId: createLesson
+      tags: [lessons]
+      summary: Create lesson (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LessonInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+
+  /lessons/{id}:
+    get:
+      operationId: getLesson
+      tags: [lessons]
+      summary: Get lesson by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lesson
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateLesson
+      tags: [lessons]
+      summary: Update lesson (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LessonUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+    delete:
+      operationId: deleteLesson
+      tags: [lessons]
+      summary: Delete lesson (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Tajweed Rules ────────────────────────────────────────────────────────────
+  /tajweed-rules:
+    get:
+      operationId: listTajweedRules
+      tags: [tajweedRules]
+      summary: List all tajweed rules (always accessible)
+      responses:
+        "200":
+          description: Rules list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TajweedRule"
+    post:
+      operationId: createTajweedRule
+      tags: [tajweedRules]
+      summary: Create tajweed rule (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TajweedRuleInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TajweedRule"
+
+  /tajweed-rules/{id}:
+    patch:
+      operationId: updateTajweedRule
+      tags: [tajweedRules]
+      summary: Update tajweed rule (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TajweedRuleInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TajweedRule"
+    delete:
+      operationId: deleteTajweedRule
+      tags: [tajweedRules]
+      summary: Delete tajweed rule (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Students (admin management) ──────────────────────────────────────────────
+  /students:
+    get:
+      operationId: listStudents
+      tags: [users]
+      summary: List all students (admin only)
+      responses:
+        "200":
+          description: Students list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentProfile"
+
+  /students/{id}:
+    get:
+      operationId: getStudent
+      tags: [users]
+      summary: Get student profile (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateStudent
+      tags: [users]
+      summary: Update student (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+
+  # ── Enrollments ──────────────────────────────────────────────────────────────
+  /enrollments:
+    get:
+      operationId: listEnrollments
+      tags: [enrollments]
+      summary: List enrollments (admin sees all, student sees own)
+      parameters:
+        - name: courseId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, active, completed, cancelled]
+      responses:
+        "200":
+          description: Enrollments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Enrollment"
+    post:
+      operationId: createEnrollment
+      tags: [enrollments]
+      summary: Create enrollment (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollmentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+
+  /enrollments/{id}:
+    get:
+      operationId: getEnrollment
+      tags: [enrollments]
+      summary: Get enrollment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Enrollment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+    patch:
+      operationId: updateEnrollment
+      tags: [enrollments]
+      summary: Update enrollment status (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollmentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+
+  # ── Assignments ───────────────────────────────────────────────────────────────
+  /assignments:
+    get:
+      operationId: listAssignments
+      tags: [assignments]
+      summary: List assignments
+      parameters:
+        - name: courseId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Assignments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Assignment"
+    post:
+      operationId: createAssignment
+      tags: [assignments]
+      summary: Create assignment (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+
+  /assignments/{id}:
+    patch:
+      operationId: updateAssignment
+      tags: [assignments]
+      summary: Update assignment (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+    delete:
+      operationId: deleteAssignment
+      tags: [assignments]
+      summary: Delete assignment (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /assignments/{id}/submissions:
+    get:
+      operationId: listSubmissions
+      tags: [assignments]
+      summary: List submissions for an assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Submissions list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Submission"
+    post:
+      operationId: createSubmission
+      tags: [assignments]
+      summary: Submit assignment (student with active enrollment only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmissionInput"
+      responses:
+        "201":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "403":
+          description: No active enrollment
+
+  /submissions/{id}:
+    patch:
+      operationId: updateSubmission
+      tags: [assignments]
+      summary: Grade/feedback on submission (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmissionUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+
+  # ── Audio Recordings ──────────────────────────────────────────────────────────
+  /audio-recordings:
+    get:
+      operationId: listAudioRecordings
+      tags: [audioRecordings]
+      summary: List audio recordings (admin sees all, student sees own)
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, reviewed]
+      responses:
+        "200":
+          description: Recordings list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AudioRecording"
+    post:
+      operationId: createAudioRecording
+      tags: [audioRecordings]
+      summary: Upload audio recording (student with active enrollment only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AudioRecordingInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudioRecording"
+
+  /audio-recordings/{id}:
+    patch:
+      operationId: updateAudioRecording
+      tags: [audioRecordings]
+      summary: Add teacher feedback to recording
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AudioRecordingUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudioRecording"
+
+  # ── Messages ──────────────────────────────────────────────────────────────────
+  /messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: List messages (admin sees all conversations, student sees own)
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Messages list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: createMessage
+      tags: [messages]
+      summary: Send message (student requires active enrollment)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: Sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "403":
+          description: No active enrollment
+
+  /messages/conversations:
+    get:
+      operationId: listConversations
+      tags: [messages]
+      summary: List conversations (admin only)
+      responses:
+        "200":
+          description: Conversations list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+
+  # ── Announcements ─────────────────────────────────────────────────────────────
+  /announcements:
+    get:
+      operationId: listAnnouncements
+      tags: [announcements]
+      summary: List announcements
+      parameters:
+        - name: courseId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Announcements list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+    post:
+      operationId: createAnnouncement
+      tags: [announcements]
+      summary: Create announcement (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnouncementInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+
+  # ── Certificates ──────────────────────────────────────────────────────────────
+  /certificates:
+    get:
+      operationId: listCertificates
+      tags: [certificates]
+      summary: List certificates (admin sees all, student sees own)
+      responses:
+        "200":
+          description: Certificates list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Certificate"
+    post:
+      operationId: createCertificate
+      tags: [certificates]
+      summary: Issue certificate (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CertificateInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Certificate"
+
+  # ── Payments ──────────────────────────────────────────────────────────────────
+  /payments:
+    get:
+      operationId: listPayments
+      tags: [payments]
+      summary: List payments (admin sees all, student sees own)
+      responses:
+        "200":
+          description: Payments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+    post:
+      operationId: createPayment
+      tags: [payments]
+      summary: Record payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /payments/{id}:
+    patch:
+      operationId: updatePayment
+      tags: [payments]
+      summary: Update payment status (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  # ── Applications ──────────────────────────────────────────────────────────────
+  /applications:
+    get:
+      operationId: listApplications
+      tags: [applications]
+      summary: List applications (admin only)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+      responses:
+        "200":
+          description: Applications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+    post:
+      operationId: createApplication
+      tags: [applications]
+      summary: Submit application (public, no auth required)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationInput"
+      responses:
+        "201":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+
+  /applications/{id}:
+    patch:
+      operationId: updateApplication
+      tags: [applications]
+      summary: Approve or reject application (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+
+  # ── Progress ──────────────────────────────────────────────────────────────────
+  /progress:
+    get:
+      operationId: getStudentProgress
+      tags: [progress]
+      summary: Get student progress (mastery per rule)
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Progress list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProgressEntry"
+
+  /progress/{ruleId}:
+    patch:
+      operationId: updateProgress
+      tags: [progress]
+      summary: Update mastery for a rule
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgressUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressEntry"
+
+  # ── Daily Wird ────────────────────────────────────────────────────────────────
+  /daily-wird:
+    get:
+      operationId: getDailyWird
+      tags: [dailyWird]
+      summary: Get today's daily wird content
+      responses:
+        "200":
+          description: Daily wird
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyWird"
+    post:
+      operationId: createDailyWird
+      tags: [dailyWird]
+      summary: Create daily wird entry (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DailyWirdInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyWird"
+
+  # ── Weekly Star ────────────────────────────────────────────────────────────────
+  /weekly-star:
+    get:
+      operationId: getWeeklyStar
+      tags: [weeklyStar]
+      summary: Get current weekly star student
+      responses:
+        "200":
+          description: Weekly star
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklyStar"
+    post:
+      operationId: setWeeklyStar
+      tags: [weeklyStar]
+      summary: Set weekly star (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WeeklyStarInput"
+      responses:
+        "201":
+          description: Set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklyStar"
+
+  # ── Comment Templates ──────────────────────────────────────────────────────────
+  /comment-templates:
+    get:
+      operationId: listCommentTemplates
+      tags: [commentTemplates]
+      summary: List comment templates (admin only)
+      responses:
+        "200":
+          description: Templates list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CommentTemplate"
+    post:
+      operationId: createCommentTemplate
+      tags: [commentTemplates]
+      summary: Create comment template (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentTemplateInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentTemplate"
+
+  /comment-templates/{id}:
+    delete:
+      operationId: deleteCommentTemplate
+      tags: [commentTemplates]
+      summary: Delete comment template (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Audio Library ──────────────────────────────────────────────────────────────
+  /audio-library:
+    get:
+      operationId: listAudioLibrary
+      tags: [audioLibrary]
+      summary: List audio library entries (professional reciters)
+      parameters:
+        - name: ruleId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Audio library list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AudioLibraryItem"
+    post:
+      operationId: createAudioLibraryItem
+      tags: [audioLibrary]
+      summary: Add audio library item (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AudioLibraryInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AudioLibraryItem"
+
+  /audio-library/{id}:
+    delete:
+      operationId: deleteAudioLibraryItem
+      tags: [audioLibrary]
+      summary: Delete audio library item (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Student Notes ──────────────────────────────────────────────────────────────
+  /students/{studentId}/notes:
+    get:
+      operationId: listStudentNotes
+      tags: [studentNotes]
+      summary: List private notes for a student (admin only)
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Notes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentNote"
+    post:
+      operationId: createStudentNote
+      tags: [studentNotes]
+      summary: Add private note for a student (admin only)
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentNoteInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentNote"
+
+  # ── Dashboard ─────────────────────────────────────────────────────────────────
+  /dashboard/teacher:
+    get:
+      operationId: getTeacherDashboard
+      tags: [dashboard]
+      summary: Get teacher dashboard stats
+      responses:
+        "200":
+          description: Teacher dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeacherDashboard"
+
+  /dashboard/student:
+    get:
+      operationId: getStudentDashboard
+      tags: [dashboard]
+      summary: Get student personal dashboard
+      responses:
+        "200":
+          description: Student dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDashboard"
+
+  # ── Admin Stats ───────────────────────────────────────────────────────────────
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [stats]
+      summary: Get overall platform statistics (admin only)
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/common-mistakes:
+    get:
+      operationId: getCommonMistakes
+      tags: [stats]
+      summary: Get most common mistakes across students (admin only)
+      responses:
+        "200":
+          description: Common mistakes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MistakeStat"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +1262,894 @@ components:
       required:
         - status
 
+    # ── Users ────────────────────────────────────────────────────────────────
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        clerkId:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [teacher, student]
+        avatarUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, clerkId, email, name, role, createdAt]
+
+    UserSyncInput:
+      type: object
+      properties:
+        clerkId:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+      required: [clerkId, email, name]
+
+    StudentProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        clerkId:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        lastActiveAt:
+          type: ["string", "null"]
+        totalEnrollments:
+          type: integer
+        activeEnrollment:
+          $ref: "#/components/schemas/Enrollment"
+        masteryScore:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, clerkId, email, name, totalEnrollments, masteryScore, createdAt]
+
+    StudentUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+
+    # ── Courses ──────────────────────────────────────────────────────────────
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        level:
+          type: integer
+          description: "1 = Level 1, 2 = Level 2"
+        durationDays:
+          type: integer
+        price:
+          type: number
+        capacity:
+          type: integer
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        enrolledCount:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, title, description, level, durationDays, price, capacity, isActive, enrolledCount, createdAt]
+
+    CourseInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        level:
+          type: integer
+        durationDays:
+          type: integer
+        price:
+          type: number
+        capacity:
+          type: integer
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+      required: [title, description, level, durationDays, price, capacity]
+
+    CourseUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        durationDays:
+          type: integer
+        price:
+          type: number
+        capacity:
+          type: integer
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+
+    # ── Lessons ──────────────────────────────────────────────────────────────
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        level:
+          type: integer
+        orderIndex:
+          type: integer
+        ruleId:
+          type: ["integer", "null"]
+        videoUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, title, content, level, orderIndex, createdAt]
+
+    LessonInput:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        level:
+          type: integer
+        orderIndex:
+          type: integer
+        ruleId:
+          type: ["integer", "null"]
+        videoUrl:
+          type: ["string", "null"]
+      required: [title, content, level, orderIndex]
+
+    LessonUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        orderIndex:
+          type: integer
+        ruleId:
+          type: ["integer", "null"]
+        videoUrl:
+          type: ["string", "null"]
+
+    # ── Tajweed Rules ─────────────────────────────────────────────────────────
+    TajweedRule:
+      type: object
+      properties:
+        id:
+          type: integer
+        nameAr:
+          type: string
+        nameEn:
+          type: string
+        description:
+          type: string
+        example:
+          type: string
+        level:
+          type: integer
+        orderIndex:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, nameAr, nameEn, description, example, level, orderIndex, createdAt]
+
+    TajweedRuleInput:
+      type: object
+      properties:
+        nameAr:
+          type: string
+        nameEn:
+          type: string
+        description:
+          type: string
+        example:
+          type: string
+        level:
+          type: integer
+        orderIndex:
+          type: integer
+      required: [nameAr, nameEn, description, example, level, orderIndex]
+
+    # ── Enrollments ──────────────────────────────────────────────────────────
+    Enrollment:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        courseId:
+          type: integer
+        status:
+          type: string
+          enum: [pending, active, completed, cancelled]
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+        student:
+          $ref: "#/components/schemas/User"
+        course:
+          $ref: "#/components/schemas/Course"
+        createdAt:
+          type: string
+      required: [id, studentId, courseId, status, createdAt]
+
+    EnrollmentInput:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        courseId:
+          type: integer
+        startDate:
+          type: ["string", "null"]
+      required: [studentId, courseId]
+
+    EnrollmentUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, active, completed, cancelled]
+        startDate:
+          type: ["string", "null"]
+        endDate:
+          type: ["string", "null"]
+
+    # ── Assignments ──────────────────────────────────────────────────────────
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        dueDate:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        submissionsCount:
+          type: integer
+      required: [id, courseId, title, description, submissionsCount, createdAt]
+
+    AssignmentInput:
+      type: object
+      properties:
+        courseId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        dueDate:
+          type: ["string", "null"]
+      required: [courseId, title, description]
+
+    AssignmentUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        dueDate:
+          type: ["string", "null"]
+
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+        assignmentId:
+          type: integer
+        studentId:
+          type: integer
+        content:
+          type: string
+        audioUrl:
+          type: ["string", "null"]
+        grade:
+          type: ["string", "null"]
+        feedback:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, reviewed]
+        student:
+          $ref: "#/components/schemas/User"
+        createdAt:
+          type: string
+      required: [id, assignmentId, studentId, content, status, createdAt]
+
+    SubmissionInput:
+      type: object
+      properties:
+        content:
+          type: string
+        audioUrl:
+          type: ["string", "null"]
+      required: [content]
+
+    SubmissionUpdate:
+      type: object
+      properties:
+        grade:
+          type: string
+        feedback:
+          type: string
+        status:
+          type: string
+          enum: [pending, reviewed]
+
+    # ── Audio Recordings ─────────────────────────────────────────────────────
+    AudioRecording:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        ruleId:
+          type: ["integer", "null"]
+        audioUrl:
+          type: string
+        notes:
+          type: ["string", "null"]
+        teacherFeedback:
+          type: ["string", "null"]
+        teacherAudioFeedbackUrl:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, reviewed]
+        student:
+          $ref: "#/components/schemas/User"
+        createdAt:
+          type: string
+      required: [id, studentId, audioUrl, status, createdAt]
+
+    AudioRecordingInput:
+      type: object
+      properties:
+        ruleId:
+          type: ["integer", "null"]
+        audioUrl:
+          type: string
+        notes:
+          type: ["string", "null"]
+      required: [audioUrl]
+
+    AudioRecordingUpdate:
+      type: object
+      properties:
+        teacherFeedback:
+          type: string
+        teacherAudioFeedbackUrl:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, reviewed]
+
+    # ── Messages ─────────────────────────────────────────────────────────────
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        senderId:
+          type: integer
+        recipientId:
+          type: integer
+        content:
+          type: string
+        isRead:
+          type: boolean
+        sender:
+          $ref: "#/components/schemas/User"
+        createdAt:
+          type: string
+      required: [id, senderId, recipientId, content, isRead, createdAt]
+
+    MessageInput:
+      type: object
+      properties:
+        recipientId:
+          type: integer
+        content:
+          type: string
+      required: [recipientId, content]
+
+    Conversation:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        student:
+          $ref: "#/components/schemas/User"
+        lastMessage:
+          type: string
+        lastMessageAt:
+          type: string
+        unreadCount:
+          type: integer
+        hasActiveEnrollment:
+          type: boolean
+      required: [studentId, lastMessage, lastMessageAt, unreadCount, hasActiveEnrollment]
+
+    # ── Announcements ─────────────────────────────────────────────────────────
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+      required: [id, title, content, createdAt]
+
+    AnnouncementInput:
+      type: object
+      properties:
+        courseId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        content:
+          type: string
+      required: [title, content]
+
+    # ── Certificates ──────────────────────────────────────────────────────────
+    Certificate:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        courseId:
+          type: integer
+        issuedAt:
+          type: string
+        certificateUrl:
+          type: ["string", "null"]
+        student:
+          $ref: "#/components/schemas/User"
+        course:
+          $ref: "#/components/schemas/Course"
+      required: [id, studentId, courseId, issuedAt]
+
+    CertificateInput:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        courseId:
+          type: integer
+        certificateUrl:
+          type: ["string", "null"]
+      required: [studentId, courseId]
+
+    # ── Payments ──────────────────────────────────────────────────────────────
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        courseId:
+          type: integer
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [pending, paid, cancelled, refunded]
+        method:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        paidAt:
+          type: ["string", "null"]
+        student:
+          $ref: "#/components/schemas/User"
+        course:
+          $ref: "#/components/schemas/Course"
+        createdAt:
+          type: string
+      required: [id, studentId, courseId, amount, status, createdAt]
+
+    PaymentInput:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        courseId:
+          type: integer
+        amount:
+          type: number
+        method:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+      required: [studentId, courseId, amount]
+
+    PaymentUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, paid, cancelled, refunded]
+        method:
+          type: string
+        notes:
+          type: string
+        paidAt:
+          type: ["string", "null"]
+
+    # ── Applications ──────────────────────────────────────────────────────────
+    Application:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        desiredLevel:
+          type: integer
+        message:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        createdAt:
+          type: string
+      required: [id, name, email, desiredLevel, status, createdAt]
+
+    ApplicationInput:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        desiredLevel:
+          type: integer
+        message:
+          type: ["string", "null"]
+      required: [name, email, desiredLevel]
+
+    ApplicationUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+      required: [status]
+
+    # ── Progress ──────────────────────────────────────────────────────────────
+    ProgressEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        ruleId:
+          type: integer
+        masteryLevel:
+          type: integer
+          description: "0=not started, 1=in progress, 2=mastered"
+        selfAssessment:
+          type: integer
+          description: "1-5 student self-rating"
+        updatedAt:
+          type: string
+        rule:
+          $ref: "#/components/schemas/TajweedRule"
+      required: [id, studentId, ruleId, masteryLevel, updatedAt]
+
+    ProgressUpdate:
+      type: object
+      properties:
+        masteryLevel:
+          type: integer
+        selfAssessment:
+          type: integer
+
+    # ── Daily Wird ─────────────────────────────────────────────────────────────
+    DailyWird:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        ruleId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        content:
+          type: string
+        rule:
+          $ref: "#/components/schemas/TajweedRule"
+      required: [id, date, title, content]
+
+    DailyWirdInput:
+      type: object
+      properties:
+        date:
+          type: string
+        ruleId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        content:
+          type: string
+      required: [date, title, content]
+
+    # ── Weekly Star ────────────────────────────────────────────────────────────
+    WeeklyStar:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        weekStartDate:
+          type: string
+        reason:
+          type: ["string", "null"]
+        student:
+          $ref: "#/components/schemas/User"
+      required: [id, studentId, weekStartDate]
+
+    WeeklyStarInput:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        weekStartDate:
+          type: string
+        reason:
+          type: ["string", "null"]
+      required: [studentId, weekStartDate]
+
+    # ── Comment Templates ─────────────────────────────────────────────────────
+    CommentTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        category:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, text, createdAt]
+
+    CommentTemplateInput:
+      type: object
+      properties:
+        text:
+          type: string
+        category:
+          type: ["string", "null"]
+      required: [text]
+
+    # ── Audio Library ─────────────────────────────────────────────────────────
+    AudioLibraryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        ruleId:
+          type: ["integer", "null"]
+        reciterName:
+          type: string
+        audioUrl:
+          type: string
+        description:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, reciterName, audioUrl, createdAt]
+
+    AudioLibraryInput:
+      type: object
+      properties:
+        ruleId:
+          type: ["integer", "null"]
+        reciterName:
+          type: string
+        audioUrl:
+          type: string
+        description:
+          type: ["string", "null"]
+      required: [reciterName, audioUrl]
+
+    # ── Student Notes ─────────────────────────────────────────────────────────
+    StudentNote:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        note:
+          type: string
+        createdAt:
+          type: string
+      required: [id, studentId, note, createdAt]
+
+    StudentNoteInput:
+      type: object
+      properties:
+        note:
+          type: string
+      required: [note]
+
+    # ── Dashboard ─────────────────────────────────────────────────────────────
+    TeacherDashboard:
+      type: object
+      properties:
+        totalStudents:
+          type: integer
+        activeStudents:
+          type: integer
+        pendingSubmissions:
+          type: integer
+        pendingRecordings:
+          type: integer
+        pendingApplications:
+          type: integer
+        unreadMessages:
+          type: integer
+        totalRevenue:
+          type: number
+        activeCourse:
+          $ref: "#/components/schemas/Course"
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+      required: [totalStudents, activeStudents, pendingSubmissions, pendingRecordings, pendingApplications, unreadMessages, totalRevenue]
+
+    StudentDashboard:
+      type: object
+      properties:
+        activeEnrollment:
+          $ref: "#/components/schemas/Enrollment"
+        masteredRulesCount:
+          type: integer
+        totalRulesCount:
+          type: integer
+        pendingAssignments:
+          type: integer
+        pendingRecordingFeedback:
+          type: integer
+        certificates:
+          type: array
+          items:
+            $ref: "#/components/schemas/Certificate"
+        daysRemaining:
+          type: ["integer", "null"]
+        lastActivity:
+          type: ["string", "null"]
+      required: [masteredRulesCount, totalRulesCount, pendingAssignments, pendingRecordingFeedback]
+
+    ActivityItem:
+      type: object
+      properties:
+        type:
+          type: string
+        description:
+          type: string
+        studentName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [type, description, createdAt]
+
+    # ── Admin Stats ────────────────────────────────────────────────────────────
+    AdminStats:
+      type: object
+      properties:
+        totalStudents:
+          type: integer
+        activeEnrollments:
+          type: integer
+        completedCourses:
+          type: integer
+        totalRevenue:
+          type: number
+        averageMastery:
+          type: number
+        topStudents:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        enrollmentsByLevel:
+          type: array
+          items:
+            $ref: "#/components/schemas/LevelStat"
+      required: [totalStudents, activeEnrollments, completedCourses, totalRevenue, averageMastery]
+
+    MistakeStat:
+      type: object
+      properties:
+        ruleId:
+          type: integer
+        ruleName:
+          type: string
+        correctionCount:
+          type: integer
+      required: [ruleId, ruleName, correctionCount]
+
+    LevelStat:
+      type: object
+      properties:
+        level:
+          type: integer
+        count:
+          type: integer
+      required: [level, count]
