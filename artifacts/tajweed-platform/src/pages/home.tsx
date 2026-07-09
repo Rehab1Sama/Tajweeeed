@@ -41,8 +41,8 @@ export default function HomePage() {
                 <span className="text-secondary">كما أُنزل</span>
               </h2>
               <p className="text-xl md:text-2xl text-muted-foreground mb-10 leading-relaxed font-serif">
-                مساحة تعليمية هادئة ومخصصة للنساء لتعلم وإتقان أحكام التجويد 
-                بطريقة علمية وعملية، مع متابعة شخصية مستمرة.
+                مساحة تعليمية هادئة ومخصصة للنساء لتعلم أحكام التجويد
+                وفهمها فهمًا علميًا صحيحًا، مع متابعة جماعية دافئة ومستمرة.
               </p>
               <div className="flex items-center justify-center gap-4 ui-sans">
                 <Link href="/apply">
@@ -72,11 +72,11 @@ export default function HomePage() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { icon: Users, title: "متابعة فردية", desc: "توجيه وتصحيح مباشر لكل طالبة لضمان التطبيق الصحيح للأحكام." },
-                { icon: BookOpen, title: "منهجية واضحة", desc: "دروس مقسمة لمستويات متدرجة تناسب المبتدئات والمتقدمات." },
-                { icon: PlayCircle, title: "تسجيلات صوتية", desc: "مكتبة صوتية للمقارنة وتقييم التلاوات مع تغذية راجعة دقيقة." },
+                { icon: BookOpen, title: "تعليم نظري متين", desc: "التركيز على فهم أحكام التجويد وقواعده العلمية بأسلوب واضح ومنظم." },
+                { icon: Users, title: "متابعة جماعية", desc: "جلسات متابعة مشتركة تُعزز روح الانتماء والتشجيع المتبادل بين الطالبات." },
+                { icon: PlayCircle, title: "تدريب صوتي", desc: "تسجيل واحد لكل درس للتدرب العملي وتثبيت الأحكام المدروسة." },
                 { icon: Heart, title: "بيئة نسائية", desc: "مساحة آمنة ومريحة تتيح للطالبة التعلم براحة وطمأنينة." },
-                { icon: Star, title: "مستويات إتقان", desc: "نظام تتبع يوضح مدى استيعابك وتطبيقك لكل حكم تجويدي." },
+                { icon: Star, title: "مستويات إتقان", desc: "نظام تتبع يوضح مدى استيعابك لكل حكم تجويدي وتقدمك في الدورة." },
                 { icon: Award, title: "شهادات إتمام", desc: "توثيق لرحلتك التعليمية عند إتمام كل مستوى بنجاح." },
               ].map((feature, i) => (
                 <motion.div 
@@ -113,7 +113,7 @@ export default function HomePage() {
                     <div className="text-secondary font-bold text-5xl">1</div>
                     <div>
                       <h4 className="text-2xl font-bold text-primary mb-2">المستوى الأول: التأسيس</h4>
-                      <p className="text-muted-foreground font-serif">التعرف على مخارج الحروف وصفاتها الأساسية، وأحكام النون الساكنة والتنوين والميم الساكنة.</p>
+                      <p className="text-muted-foreground font-serif">دراسة مخارج الحروف وصفاتها، وأحكام النون الساكنة والتنوين والميم الساكنة — مع تسجيل تدريبي لكل درس لتثبيت الأحكام.</p>
                     </div>
                   </div>
                   
@@ -121,7 +121,7 @@ export default function HomePage() {
                     <div className="text-secondary font-bold text-5xl">2</div>
                     <div>
                       <h4 className="text-2xl font-bold text-primary mb-2">المستوى الثاني: الإتقان</h4>
-                      <p className="text-muted-foreground font-serif">التعمق في أحكام المدود، والوقف والابتداء، والتدريب المكثف على التلاوة الصحيحة الخالية من اللحون.</p>
+                      <p className="text-muted-foreground font-serif">دراسة أحكام المدود، والوقف والابتداء، والتفخيم والترقيق — مع متابعة جماعية لمراجعة ما تعلمته ودعمك حتى الإتقان.</p>
                     </div>
                   </div>
                 </div>
@@ -143,7 +143,7 @@ export default function HomePage() {
           <div className="container mx-auto px-4 relative z-10">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">هل أنتِ مستعدة للبدء؟</h2>
             <p className="text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto font-serif">
-              المقاعد محدودة لضمان جودة المتابعة الفردية. سجلي طلب انضمامك الآن وسنتواصل معك قريباً.
+              المقاعد محدودة لضمان جودة التعلم والمتابعة. سجلي طلب انضمامك الآن وسنتواصل معك قريباً.
             </p>
             <Link href="/apply">
               <Button size="lg" className="h-16 px-10 text-xl bg-secondary text-secondary-foreground hover:bg-secondary/90 ui-sans border-0 shadow-lg">
