@@ -43,6 +43,22 @@ router.delete("/assignments/:id", requireTeacher, async (req, res): Promise<void
   res.sendStatus(204);
 });
 
+// All submissions (teacher only)
+router.get("/submissions", requireTeacher, async (req, res): Promise<void> => {
+  const rows = await db.select().from(assignmentSubmissionsTable).orderBy(assignmentSubmissionsTable.createdAt);
+  const students = await db.select().from(usersTable);
+  res.json(rows.map((s) => {
+    const student = students.find((u) => u.id === s.studentId);
+    return {
+      id: s.id, assignmentId: s.assignmentId, studentId: s.studentId,
+      content: s.content, audioUrl: s.audioUrl ?? null, grade: s.grade ?? null,
+      feedback: s.feedback ?? null, status: s.status,
+      student: student ? { id: student.id, clerkId: student.clerkId, email: student.email, name: student.name, role: student.role, avatarUrl: student.avatarUrl ?? null, createdAt: student.createdAt.toISOString() } : null,
+      createdAt: s.createdAt.toISOString(),
+    };
+  }));
+});
+
 // Submissions
 router.get("/assignments/:id/submissions", requireAuth, async (req, res): Promise<void> => {
   const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);

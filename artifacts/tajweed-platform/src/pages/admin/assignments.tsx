@@ -1,4 +1,5 @@
-import { useListSubmissions, useUpdateSubmission, getListSubmissionsQueryKey } from "@workspace/api-client-react";
+import { useUpdateSubmission, customFetch } from "@workspace/api-client-react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,8 +14,15 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
+function useAllSubmissions() {
+  return useQuery({
+    queryKey: ['/api/submissions'],
+    queryFn: () => customFetch<any[]>('/api/submissions'),
+  });
+}
+
 export default function AssignmentsReview() {
-  const { data: submissions, isLoading } = useListSubmissions();
+  const { data: submissions, isLoading } = useAllSubmissions();
   const updateSubmission = useUpdateSubmission();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -32,7 +40,7 @@ export default function AssignmentsReview() {
     );
   }
 
-  const filteredSubs = submissions?.filter(s => s.status === filter).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const filteredSubs = (submissions as any[] | undefined)?.filter((s: any) => s.status === filter).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const handleReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +57,7 @@ export default function AssignmentsReview() {
       onSuccess: () => {
         toast({ title: "تم التقييم", description: "تم حفظ التقييم وإرساله للطالبة." });
         setSelectedSub(null);
-        queryClient.invalidateQueries({ queryKey: getListSubmissionsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: ['/api/submissions'] });
       }
     });
   };

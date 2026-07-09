@@ -3,11 +3,11 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter, useLocation, Redirect } from 'wouter';
-import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from '@clerk/react';
+import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser, useAuth } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { useEffect, useRef, useState } from 'react';
-import { useSyncUser, useGetCurrentUser } from '@workspace/api-client-react';
+import { useSyncUser, useGetCurrentUser, setAuthTokenGetter } from '@workspace/api-client-react';
 
 // Pages
 import HomePage from '@/pages/home';
@@ -106,6 +106,18 @@ function SignUpPage() {
   );
 }
 
+// Attach Clerk bearer token to every API request
+function ClerkTokenSetter() {
+  const { getToken } = useAuth();
+
+  useEffect(() => {
+    setAuthTokenGetter(() => getToken());
+    return () => setAuthTokenGetter(null);
+  }, [getToken]);
+
+  return null;
+}
+
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
   const queryClient = useQueryClient();
@@ -158,7 +170,7 @@ function UserSync() {
   return <RoleRouter />;
 }
 
-// Redirect to dashboard or admin based on role
+// Render the correct router inline (used at /dashboard and /admin routes)
 function RoleRouter() {
   const { data: currentUser, isLoading } = useGetCurrentUser();
 
@@ -172,25 +184,49 @@ function RoleRouter() {
   return <DashboardRouter />;
 }
 
+// Sync user then redirect to the correct section (used at / route only)
+function SyncThenRedirect() {
+  const { user } = useUser();
+  const [synced, setSynced] = useState(false);
+  const { mutate: syncUser } = useSyncUser();
+  const { data: currentUser, isLoading } = useGetCurrentUser();
+
+  useEffect(() => {
+    if (user && !synced) {
+      syncUser(
+        {
+          data: {
+            clerkId: user.id,
+            email: user.primaryEmailAddress?.emailAddress || '',
+            name: user.fullName || '',
+            avatarUrl: user.imageUrl,
+          },
+        },
+        {
+          onSuccess: () => setSynced(true),
+          onError: (err) => console.error("Failed to sync user", err),
+        }
+      );
+    }
+  }, [user, synced, syncUser]);
+
+  if (!synced || isLoading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+  if (!currentUser) return <HomePage />;
+  if (currentUser.role === 'teacher') return <Redirect to="/admin" />;
+  return <Redirect to="/dashboard" />;
+}
+
 function HomeRedirect() {
   return (
     <>
       <Show when="signed-in">
-        <RoleRedirect />
+        <SyncThenRedirect />
       </Show>
       <Show when="signed-out">
         <HomePage />
       </Show>
     </>
   );
-}
-
-function RoleRedirect() {
-  const { data: currentUser, isLoading } = useGetCurrentUser();
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
-  if (!currentUser) return <HomePage />;
-  if (currentUser.role === 'teacher') return <Redirect to="/admin" />;
-  return <Redirect to="/dashboard" />;
 }
 
 function ClerkProviderWithRoutes() {
@@ -221,6 +257,7 @@ function ClerkProviderWithRoutes() {
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
       <QueryClientProvider client={queryClient}>
+        <ClerkTokenSetter />
         <ClerkQueryClientCacheInvalidator />
         <Switch>
           <Route path="/" component={HomeRedirect} />

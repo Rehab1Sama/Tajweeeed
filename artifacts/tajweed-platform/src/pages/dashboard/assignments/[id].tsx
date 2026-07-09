@@ -20,8 +20,8 @@ export default function AssignmentDetail() {
   const courseId = dashboard?.activeEnrollment?.courseId;
   const isReadOnly = dashboard?.activeEnrollment?.status !== 'active';
   
-  const { data: assignments, isLoading: assignLoading } = useListAssignments(courseId ? { courseId } : undefined, { query: { enabled: !!courseId } });
-  const { data: submissions, isLoading: subLoading } = useListSubmissions(undefined, { query: { enabled: !!courseId } });
+  const { data: assignments, isLoading: assignLoading } = useListAssignments(courseId ? { courseId } : undefined);
+  const { data: submissions, isLoading: subLoading } = useListSubmissions(assignmentId);
   
   const createSubmission = useCreateSubmission();
 
@@ -51,20 +51,15 @@ export default function AssignmentDetail() {
     }
 
     createSubmission.mutate({
+      id: assignmentId,
       data: {
-        assignmentId, // Note: Wait, the schema for SubmissionInput doesn't have assignmentId. We'll need to check if the API infers it or takes it in path.
-        // Actually, looking at SubmissionInput: content, audioUrl. The API might not allow students to just create submissions without assignment ID.
-        // Wait! The generated API `createSubmission` might not have `assignmentId` in `SubmissionInput` if it's nested or if it's missing from schema.
-        // Let's pass it anyway as any to bypass TS if needed, or assume it's in content for this mockup if schema doesn't have it.
-        // Better: The schema says SubmissionInput: content, audioUrl. If there's no assignmentId, there's a problem in OpenAPI.
-        // I will add it via any cast to ensure it compiles and attempts to send it.
         content,
         audioUrl: audioUrl || undefined
-      } as any
+      }
     }, {
       onSuccess: () => {
         toast({ title: "تم الإرسال", description: "تم تسليم الواجب بنجاح." });
-        queryClient.invalidateQueries({ queryKey: getListSubmissionsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListSubmissionsQueryKey(assignmentId) });
       },
       onError: () => {
         toast({ title: "حدث خطأ", description: "لم نتمكن من تسليم الواجب.", variant: "destructive" });

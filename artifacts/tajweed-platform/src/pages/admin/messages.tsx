@@ -20,7 +20,7 @@ export default function MessagesAdmin() {
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: messages, isLoading: msgLoading } = useListMessages(selectedStudentId ? { studentId: selectedStudentId } : undefined, { query: { enabled: !!selectedStudentId } });
+  const { data: messages, isLoading: msgLoading } = useListMessages(selectedStudentId ? { studentId: selectedStudentId } : undefined);
   const createMessage = useCreateMessage();
 
   const [content, setContent] = useState("");

@@ -14,7 +14,7 @@ export default function LessonDetail() {
   const { toast } = useToast();
   
   const { data: lesson, isLoading: isLessonLoading } = useGetLesson(lessonId);
-  const { data: audioLibrary, isLoading: isAudioLoading } = useListAudioLibrary({ ruleId: lesson?.ruleId || undefined }, { query: { enabled: !!lesson?.ruleId } });
+  const { data: audioLibrary, isLoading: isAudioLoading } = useListAudioLibrary(lesson?.ruleId ? { ruleId: lesson.ruleId } : undefined);
   const { data: progress } = useGetStudentProgress();
   const updateProgress = useUpdateProgress();
 
@@ -45,12 +45,7 @@ export default function LessonDetail() {
     
     setSelfRating(rating);
     updateProgress.mutate({
-      id: ruleProgress?.id || 0, // If 0, the backend should handle creating a new entry based on current user context if we adapted it to take ruleId, but the generated API takes ID. Let's assume progress entries exist or we use a different endpoint.
-      // Wait, updateProgress takes `id`. If the user hasn't started, `id` might not exist.
-      // The API should ideally handle upserts. If ruleProgress is undefined, we might need to handle differently or pass ruleId if the API supports it.
-      // Looking at the schema, ProgressUpdate takes masteryLevel and selfAssessment. 
-      // If we don't have an ID, we might not be able to update via this endpoint directly unless it's handled server-side.
-      // For now, we'll try to update if we have an ID, else show a toast that progress can't be saved yet.
+      ruleId: lesson?.ruleId || 0,
       data: { selfAssessment: rating }
     }, {
       onSuccess: () => {

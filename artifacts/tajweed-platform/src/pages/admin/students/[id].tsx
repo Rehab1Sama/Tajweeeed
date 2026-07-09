@@ -1,4 +1,5 @@
 import { useGetStudent, useListStudentNotes, useCreateStudentNote, getListStudentNotesQueryKey } from "@workspace/api-client-react";
+import { MessageSquare } from "lucide-react";
 import { useParams, Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ export default function StudentDetail() {
   const { toast } = useToast();
   
   const { data: student, isLoading } = useGetStudent(studentId);
-  const { data: notes, isLoading: notesLoading } = useListStudentNotes({ studentId });
+  const { data: notes, isLoading: notesLoading } = useListStudentNotes(studentId);
   const createNote = useCreateStudentNote();
   
   const [newNote, setNewNote] = useState("");
@@ -40,11 +41,12 @@ export default function StudentDetail() {
     if (!newNote.trim()) return;
     
     createNote.mutate({
-      data: { note: newNote, studentId } as any // Using as any if studentId isn't explicitly in StudentNoteInput
+      studentId,
+      data: { note: newNote }
     }, {
       onSuccess: () => {
         setNewNote("");
-        queryClient.invalidateQueries({ queryKey: getListStudentNotesQueryKey({ studentId }) });
+        queryClient.invalidateQueries({ queryKey: getListStudentNotesQueryKey(studentId) });
         toast({ title: "تم الإضافة", description: "تمت إضافة الملاحظة بنجاح." });
       }
     });

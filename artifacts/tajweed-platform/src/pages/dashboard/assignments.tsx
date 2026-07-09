@@ -1,8 +1,8 @@
-import { useListAssignments, useListSubmissions, useGetStudentDashboard } from "@workspace/api-client-react";
+import { useListAssignments, useGetStudentDashboard } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { FileEdit, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { FileEdit, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
@@ -11,10 +11,9 @@ export default function AssignmentsList() {
   const courseId = dashboard?.activeEnrollment?.courseId;
   const isReadOnly = dashboard?.activeEnrollment?.status !== 'active';
   
-  const { data: assignments, isLoading: assignLoading } = useListAssignments(courseId ? { courseId } : undefined, { query: { enabled: !!courseId } });
-  const { data: submissions, isLoading: subLoading } = useListSubmissions(undefined, { query: { enabled: !!courseId } });
+  const { data: assignments, isLoading: assignLoading } = useListAssignments(courseId ? { courseId } : undefined);
 
-  if (assignLoading || subLoading) {
+  if (assignLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
@@ -30,11 +29,9 @@ export default function AssignmentsList() {
     );
   }
 
-  const getAssignmentStatus = (assignmentId: number) => {
-    const sub = submissions?.find(s => s.assignmentId === assignmentId);
-    if (!sub) return { type: 'pending', label: 'بانتظار التسليم', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/30' };
-    if (sub.status === 'pending') return { type: 'submitted', label: 'تم التسليم - بانتظار التقييم', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-950/30' };
-    return { type: 'reviewed', label: 'تم التقييم', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-950/30', grade: sub.grade };
+  const getAssignmentStatus = (assignment: { submissionsCount: number }) => {
+    if (assignment.submissionsCount === 0) return { type: 'pending', label: 'بانتظار التسليم', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/30' };
+    return { type: 'submitted', label: 'تم التسليم', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-950/30' };
   };
 
   return (
@@ -53,7 +50,7 @@ export default function AssignmentsList() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {assignments && assignments.length > 0 ? assignments.map((assignment) => {
-          const status = getAssignmentStatus(assignment.id);
+          const status = getAssignmentStatus(assignment);
           const isOverdue = assignment.dueDate && new Date(assignment.dueDate) < new Date() && status.type === 'pending';
           
           return (
@@ -77,12 +74,6 @@ export default function AssignmentsList() {
                   <div className={`flex items-center gap-1.5 text-xs font-medium ui-sans ${isOverdue ? 'text-destructive' : 'text-muted-foreground'}`}>
                     {isOverdue ? <AlertCircle className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
                     <span>موعد التسليم: {format(new Date(assignment.dueDate), 'd MMMM yyyy', { locale: ar })}</span>
-                  </div>
-                )}
-                {status.type === 'reviewed' && status.grade && (
-                  <div className="mt-4 bg-primary/5 border border-primary/10 p-3 rounded-lg flex items-center justify-between">
-                    <span className="text-sm font-bold text-primary">التقييم:</span>
-                    <span className="text-lg font-bold text-secondary ui-sans" dir="ltr">{status.grade}</span>
                   </div>
                 )}
               </CardContent>
