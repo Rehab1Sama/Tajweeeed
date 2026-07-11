@@ -170,4 +170,42 @@ router.patch("/students/:id", requireTeacher, async (req, res): Promise<void> =>
   });
 });
 
+// POST /api/setup/make-teacher (no auth required — bootstrap mechanism)
+router.post("/setup/make-teacher", async (req, res): Promise<void> => {
+  const { email, secret } = req.body;
+
+  if (!secret || secret !== process.env.SESSION_SECRET) {
+    res.status(403).json({ error: "Invalid secret" });
+    return;
+  }
+
+  if (!email) {
+    res.status(400).json({ error: "email is required" });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  const [updated] = await db
+    .update(usersTable)
+    .set({ role: "teacher" })
+    .where(eq(usersTable.email, email))
+    .returning();
+
+  res.json({
+    id: updated.id,
+    clerkId: updated.clerkId,
+    email: updated.email,
+    name: updated.name,
+    role: updated.role,
+    avatarUrl: updated.avatarUrl ?? null,
+    createdAt: updated.createdAt.toISOString(),
+  });
+});
+
 export default router;

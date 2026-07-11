@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useUser, useClerk } from "@clerk/react";
+import { useGetCurrentUser } from "@workspace/api-client-react";
 import { 
   LayoutDashboard, 
   Users, 
@@ -29,6 +30,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [location] = useLocation();
   const { user } = useUser();
   const { signOut } = useClerk();
+  const { data: currentUser, isLoading } = useGetCurrentUser();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (currentUser?.role !== "teacher") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center p-8 rounded-2xl border border-border bg-card shadow-sm max-w-sm">
+          <p className="text-xl font-serif text-primary">ليس لديكِ صلاحية الوصول إلى هذه الصفحة</p>
+        </div>
+      </div>
+    );
+  }
 
   const navGroups = [
     {

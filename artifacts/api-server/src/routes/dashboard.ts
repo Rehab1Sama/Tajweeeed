@@ -80,13 +80,20 @@ router.get("/dashboard/student", requireAuth, async (req, res): Promise<void> =>
     daysRemaining = Math.max(0, Math.ceil((end.getTime() - Date.now()) / 86400000));
   }
 
-  const coursesData = activeEnrollment ? await db.select().from(coursesTable).where(eq(coursesTable.id, activeEnrollment.courseId)) : [];
+  const [coursesData, courseEnrollments] = activeEnrollment
+    ? await Promise.all([
+        db.select().from(coursesTable).where(eq(coursesTable.id, activeEnrollment.courseId)),
+        db.select().from(enrollmentsTable).where(eq(enrollmentsTable.courseId, activeEnrollment.courseId)),
+      ])
+    : [[], []];
+
+  const courseEnrolledCount = courseEnrollments.filter((e) => e.status === "active").length;
 
   res.json({
     activeEnrollment: activeEnrollment ? {
       id: activeEnrollment.id, studentId: activeEnrollment.studentId, courseId: activeEnrollment.courseId,
       status: activeEnrollment.status, startDate: activeEnrollment.startDate ?? null, endDate: activeEnrollment.endDate ?? null,
-      course: coursesData[0] ? { id: coursesData[0].id, title: coursesData[0].title, description: coursesData[0].description, level: coursesData[0].level, durationDays: coursesData[0].durationDays, price: parseFloat(coursesData[0].price), capacity: coursesData[0].capacity, startDate: coursesData[0].startDate ?? null, endDate: coursesData[0].endDate ?? null, isActive: coursesData[0].isActive, enrolledCount: 0, createdAt: coursesData[0].createdAt.toISOString() } : null,
+      course: coursesData[0] ? { id: coursesData[0].id, title: coursesData[0].title, description: coursesData[0].description, level: coursesData[0].level, durationDays: coursesData[0].durationDays, price: parseFloat(coursesData[0].price), capacity: coursesData[0].capacity, startDate: coursesData[0].startDate ?? null, endDate: coursesData[0].endDate ?? null, isActive: coursesData[0].isActive, enrolledCount: courseEnrolledCount, createdAt: coursesData[0].createdAt.toISOString() } : null,
       createdAt: activeEnrollment.createdAt.toISOString(),
     } : null,
     masteredRulesCount: masteredCount,
@@ -101,24 +108,25 @@ router.get("/dashboard/student", requireAuth, async (req, res): Promise<void> =>
 
 // Admin Stats
 router.get("/admin/stats", requireTeacher, async (_req, res): Promise<void> => {
-  const [students, enrollments, payments, progress] = await Promise.all([
+  const [students, enrollments, payments, progress, courses] = await Promise.all([
     db.select().from(usersTable).where(eq(usersTable.role, "student")),
     db.select().from(enrollmentsTable),
     db.select().from(paymentsTable),
     db.select().from(progressEntriesTable),
+    db.select().from(coursesTable),
   ]);
 
   const totalRevenue = payments.filter((p) => p.status === "paid").reduce((sum, p) => sum + parseFloat(p.amount), 0);
   const mastered = progress.filter((p) => p.masteryLevel === 2).length;
   const averageMastery = students.length > 0 ? mastered / students.length : 0;
 
-  const byLevel = [1, 2].map((level) => ({
-    level,
-    count: enrollments.filter((e) => {
-      // Can't easily join here without more queries, just count all
-      return true;
-    }).length,
-  }));
+  const byLevel = [1, 2].map((level) => {
+    const courseIdsAtLevel = courses.filter((c) => c.level === level).map((c) => c.id);
+    return {
+      level,
+      count: enrollments.filter((e) => e.status === "active" && courseIdsAtLevel.includes(e.courseId)).length,
+    };
+  });
 
   res.json({
     totalStudents: students.length,
