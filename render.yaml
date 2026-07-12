@@ -47,7 +47,7 @@ services:
     region: frankfurt      # must match the database region above
     plan: free             # change to 'starter' or higher for production
 
-    buildCommand: npm install -g pnpm@10 && pnpm install --frozen-lockfile && pnpm run build:render
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm run build:render
     startCommand: node artifacts/api-server/dist/index.mjs
 
     nodeVersion: 20.x    # LTS — change to 22.x if you prefer
