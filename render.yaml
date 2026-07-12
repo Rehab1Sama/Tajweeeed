@@ -47,8 +47,10 @@ services:
     region: frankfurt      # must match the database region above
     plan: free             # change to 'starter' or higher for production
 
-    buildCommand: pnpm install --frozen-lockfile && pnpm run build:render
-    startCommand: NODE_ENV=production node artifacts/api-server/dist/index.mjs
+    buildCommand: npm install -g pnpm@10 && pnpm install --frozen-lockfile && pnpm run build:render
+    startCommand: node artifacts/api-server/dist/index.mjs
+
+    nodeVersion: 20.x    # LTS — change to 22.x if you prefer
 
     # Render auto-injects PORT — do not set it here
     envVars:
