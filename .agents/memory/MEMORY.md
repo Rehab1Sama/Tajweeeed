@@ -4,3 +4,4 @@
 - [DB rebuild after schema changes](db-rebuild.md) — after adding new schema files, must run `pnpm run typecheck:libs` (tsc --build) to regenerate dist declarations; @workspace/db has no separate build script.
 - [Mobile app architecture](mobile-app-arch.md) — Expo app with Clerk Core v3 email/password auth, student tabs, API via setAuthTokenGetter.
 - [Teacher bootstrapping](teacher-bootstrap.md) — POST /api/setup/make-teacher (SESSION_SECRET as shared secret) provisions first teacher; AdminLayout has role guard.
+- [Tajweed seed content](tajweed-seed.md) — 2 courses, 20 rules, 24 lessons, 7 wird, 14 templates; run `pnpm --filter @workspace/db run seed` (safe to re-run, uses onConflictDoNothing).
