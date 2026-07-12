@@ -2,6 +2,9 @@ import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
@@ -48,5 +51,30 @@ app.use(
 );
 
 app.use("/api", router);
+
+// ── Production: serve the built frontend & SPA fallback ───────────────────────
+if (process.env.NODE_ENV === "production") {
+  // Resolve path relative to the compiled bundle location (dist/index.mjs)
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const staticDir =
+    process.env.STATIC_FILES_DIR ??
+    path.join(__dirname, "../../tajweed-platform/dist/public");
+
+  if (fs.existsSync(staticDir)) {
+    app.use(express.static(staticDir));
+
+    // SPA fallback — serve index.html for any non-API route
+    app.get("*", (_req, res) => {
+      res.sendFile(path.join(staticDir, "index.html"));
+    });
+
+    logger.info({ staticDir }, "Serving frontend static files");
+  } else {
+    logger.warn(
+      { staticDir },
+      "Static files directory not found — frontend not served",
+    );
+  }
+}
 
 export default app;

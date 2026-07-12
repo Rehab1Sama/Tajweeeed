@@ -1,0 +1,81 @@
+# Render deployment configuration for نور التجويد
+# Docs: https://render.com/docs/blueprint-spec
+#
+# BEFORE DEPLOYING — read the setup notes below.
+#
+# ─── SETUP NOTES ──────────────────────────────────────────────────────────────
+#
+# 1. CLERK AUTHENTICATION
+#    This app uses Clerk for auth. You need a Clerk account at https://clerk.com
+#    Create a new application there, then copy these values into Render env vars:
+#      CLERK_PUBLISHABLE_KEY    → Clerk dashboard → API Keys → Publishable key
+#      CLERK_SECRET_KEY         → Clerk dashboard → API Keys → Secret key
+#      VITE_CLERK_PUBLISHABLE_KEY → same as CLERK_PUBLISHABLE_KEY
+#
+# 2. CLERK PROXY URL (needed for auth to work on your Render domain)
+#    After your first deploy, Render assigns a URL like:
+#      https://noor-tajweed.onrender.com
+#    Set VITE_CLERK_PROXY_URL to:
+#      https://YOUR-APP.onrender.com/api/__clerk
+#    Then redeploy so the value gets baked into the frontend bundle.
+#    Also add this URL to Clerk → Domains → Add domain.
+#
+# 3. DATABASE
+#    Render creates a PostgreSQL instance automatically from this file.
+#    After first deploy, run the schema push + seed manually once:
+#      pnpm --filter @workspace/db run push
+#      pnpm --filter @workspace/db run seed
+#    (connect via Render's shell or a local DATABASE_URL pointing to Render DB)
+#
+# 4. SESSION_SECRET
+#    Generate a strong random value, e.g.:
+#      node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+#    Used by POST /api/setup/make-teacher to bootstrap the first teacher account.
+#
+# ──────────────────────────────────────────────────────────────────────────────
+
+databases:
+  - name: noor-tajweed-db
+    databaseName: noor_tajweed
+    user: noor_tajweed
+    region: frankfurt      # change to your preferred region
+
+services:
+  - type: web
+    name: noor-tajweed
+    runtime: node
+    region: frankfurt      # must match the database region above
+    plan: free             # change to 'starter' or higher for production
+
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build:render
+    startCommand: NODE_ENV=production node artifacts/api-server/dist/index.mjs
+
+    # Render auto-injects PORT — do not set it here
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # ── Database ──────────────────────────────────────────────────────────
+      - key: DATABASE_URL
+        fromDatabase:
+          name: noor-tajweed-db
+          property: connectionString
+
+      # ── Clerk (fill in Render dashboard — never commit real keys) ─────────
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false        # set manually in Render dashboard
+
+      - key: CLERK_SECRET_KEY
+        sync: false
+
+      # Baked into the frontend bundle at build time
+      - key: VITE_CLERK_PUBLISHABLE_KEY
+        sync: false
+
+      # Set to https://YOUR-APP.onrender.com/api/__clerk after first deploy
+      - key: VITE_CLERK_PROXY_URL
+        sync: false
+
+      # ── App secrets ───────────────────────────────────────────────────────
+      - key: SESSION_SECRET
+        sync: false
