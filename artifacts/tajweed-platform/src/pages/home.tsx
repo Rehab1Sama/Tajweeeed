@@ -6,9 +6,9 @@ import { BookOpen, Star, Users, Award, PlayCircle, Heart } from "lucide-react";
 function SkyBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
-      {/* Pastel sky gradient */}
+      {/* Pastel sky gradient — all-blue, no warm tones */}
       <div className="absolute inset-0" style={{
-        background: "linear-gradient(180deg, #b8d8f0 0%, #cce5f7 18%, #ddf0fb 38%, #eef8fd 58%, #f5f0e8 82%, #ecdfd0 100%)"
+        background: "linear-gradient(180deg, #a4cfe8 0%, #bfe1f5 22%, #d4edfb 48%, #e6f5fd 72%, #f2faff 100%)"
       }}/>
       {/* Painted clouds */}
       <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
@@ -48,8 +48,8 @@ function SkyBackground() {
           <ellipse cx="710" cy="52"  rx="105" ry="34" fill="#f0f9ff"/>
           <ellipse cx="840" cy="82"  rx="95"  ry="32" fill="#e8f5fd"/>
         </g>
-        {/* Warm horizon glow */}
-        <ellipse cx="720" cy="850" rx="650" ry="130" fill="#f5e6d3" opacity="0.4" filter="url(#sc2)"/>
+        {/* Cool horizon glow */}
+        <ellipse cx="720" cy="850" rx="650" ry="130" fill="#b8def5" opacity="0.25" filter="url(#sc2)"/>
         {/* Tiny birds */}
         <g fill="none" stroke="#7fb8d8" strokeWidth="1.3" opacity="0.45">
           <path d="M420 168 Q425 163 430 168 Q435 163 440 168"/>
@@ -145,7 +145,7 @@ export default function HomePage() {
         </section>
 
         {/* Features */}
-        <section className="py-24 border-y" style={{ background: "rgba(255,255,255,0.55)", borderColor: "rgba(200,224,240,0.5)" }}>
+        <section className="py-24 border-y" style={{ background: "rgba(200,232,250,0.22)", borderColor: "rgba(180,218,240,0.45)" }}>
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "#3a7fa8" }}>ما يميز منصتنا</h3>
@@ -244,7 +244,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t py-12 text-center ui-sans"
-        style={{ background: "rgba(255,255,255,0.55)", borderColor: "rgba(200,224,240,0.5)" }}>
+        style={{ background: "rgba(200,232,250,0.22)", borderColor: "rgba(180,218,240,0.45)" }}>
         <div className="container mx-auto px-4">
           <div className="flex justify-center items-center gap-2 mb-4">
             <div className="rounded-full overflow-hidden"
