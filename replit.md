@@ -1,4 +1,4 @@
-# نور التجويد
+# سُحُب — سُحُبٌ في سماء التجويد
 
 A Tajweed learning platform for women to study Quranic recitation rules with structured, community-based follow-up.
 

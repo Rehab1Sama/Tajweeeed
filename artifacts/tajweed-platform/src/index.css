@@ -76,60 +76,60 @@
   --elevate-1: rgba(0, 0, 0, 0.03);
   --elevate-2: rgba(0, 0, 0, 0.08);
 
-  /* Ivory/Cream background */
-  --background: 38 54% 96%;
-  /* Deep teal text */
-  --foreground: 180 76% 13%;
+  /* Pastel sky blue background */
+  --background: 210 60% 97%;
+  /* Dark navy text */
+  --foreground: 210 40% 22%;
 
-  /* Subtle warm border */
-  --border: 38 30% 85%;
+  /* Light blue border */
+  --border: 210 30% 87%;
 
-  /* Pure white cards for contrast */
+  /* White cards */
   --card: 0 0% 100%;
-  --card-foreground: 180 76% 13%;
-  --card-border: 38 30% 90%;
+  --card-foreground: 210 40% 22%;
+  --card-border: 210 30% 90%;
 
-  /* Teal Sidebar */
-  --sidebar: 180 78% 24%;
-  --sidebar-foreground: 38 54% 96%;
-  --sidebar-border: 180 78% 20%;
-  --sidebar-primary: 41 65% 47%;
-  --sidebar-primary-foreground: 180 78% 24%;
-  --sidebar-accent: 180 78% 20%;
-  --sidebar-accent-foreground: 38 54% 96%;
-  --sidebar-ring: 41 65% 47%;
+  /* Pastel blue sidebar */
+  --sidebar: 204 45% 63%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-border: 204 45% 57%;
+  --sidebar-primary: 0 0% 100%;
+  --sidebar-primary-foreground: 204 46% 48%;
+  --sidebar-accent: 204 45% 57%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-ring: 199 55% 75%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 180 76% 13%;
-  --popover-border: 38 30% 85%;
+  --popover-foreground: 210 40% 22%;
+  --popover-border: 210 30% 87%;
 
-  /* Primary Teal */
-  --primary: 180 78% 24%;
-  --primary-foreground: 38 54% 96%;
+  /* Primary: pastel sky blue */
+  --primary: 204 46% 48%;
+  --primary-foreground: 0 0% 100%;
 
-  /* Secondary Gold/Accent */
-  --secondary: 41 65% 47%;
-  --secondary-foreground: 180 78% 24%;
+  /* Secondary: lighter pastel blue */
+  --secondary: 199 50% 72%;
+  --secondary-foreground: 210 40% 22%;
 
-  /* Soft ivory muted */
-  --muted: 38 40% 92%;
-  --muted-foreground: 180 30% 40%;
+  /* Muted: very light blue */
+  --muted: 210 40% 93%;
+  --muted-foreground: 210 25% 48%;
 
-  /* Gold Accent */
-  --accent: 41 65% 47%;
-  --accent-foreground: 180 78% 24%;
+  /* Accent */
+  --accent: 199 50% 72%;
+  --accent-foreground: 210 40% 22%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 38 30% 85%;
-  --ring: 180 78% 24%;
+  --input: 210 30% 87%;
+  --ring: 204 46% 48%;
   
-  --chart-1: 180 78% 24%; /* teal */
-  --chart-2: 41 65% 47%; /* gold */
-  --chart-3: 160 50% 40%;
-  --chart-4: 38 54% 80%;
-  --chart-5: 180 76% 13%;
+  --chart-1: 204 46% 48%;
+  --chart-2: 199 50% 72%;
+  --chart-3: 210 40% 65%;
+  --chart-4: 210 40% 80%;
+  --chart-5: 210 40% 22%;
 
   --app-font-sans: 'Inter', sans-serif;
   --app-font-serif: 'Amiri', 'Noto Naskh Arabic', serif;

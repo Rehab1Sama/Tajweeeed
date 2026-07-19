@@ -98,8 +98,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-sidebar border-l border-sidebar-border text-sidebar-foreground">
       <div className="p-6 border-b border-sidebar-border flex items-center justify-center gap-3">
-        <img src="/logo.svg" alt="نور التجويد" className="h-10 w-10 brightness-0 invert" />
-        <span className="text-2xl font-bold font-serif text-sidebar-primary-foreground">نور التجويد</span>
+        <div className="rounded-full overflow-hidden flex items-center justify-center shrink-0"
+          style={{ width: 40, height: 40, background: "rgba(255,255,255,0.85)" }}>
+          <img src="/logo.png" alt="سُحُب" style={{ width: 34, height: 34, objectFit: "contain" }}/>
+        </div>
+        <div>
+          <span className="text-xl font-bold font-serif text-sidebar-primary-foreground block leading-none">سُحُب</span>
+          <span className="text-xs font-serif" style={{ color: "rgba(255,255,255,0.75)" }}>سُحُبٌ في سماء التجويد</span>
+        </div>
       </div>
       
       <div className="flex-1 overflow-y-auto py-6 px-4 ui-sans">
@@ -166,8 +172,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Mobile Header */}
         <header className="lg:hidden h-16 border-b border-border bg-card flex items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="نور التجويد" className="h-8 w-8" />
-            <span className="font-bold text-primary">إدارة نور التجويد</span>
+            <div className="rounded-full overflow-hidden" style={{ width: 32, height: 32, background: "rgba(255,255,255,0.8)", border: "1px solid #c8e0f0" }}>
+              <img src="/logo.png" alt="سُحُب" style={{ width: 32, height: 32, objectFit: "contain" }}/>
+            </div>
+            <span className="font-bold text-primary">إدارة سُحُب</span>
           </div>
           <Sheet>
             <SheetTrigger asChild>
