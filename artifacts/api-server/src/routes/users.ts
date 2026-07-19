@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db, usersTable, enrollmentsTable, progressEntriesTable } from "@workspace/db";
-import { requireAuth, requireTeacher } from "../lib/auth";
+import { requireAuth, requireClerkSession, requireTeacher } from "../lib/auth";
 
 const router = Router();
 
@@ -24,7 +24,7 @@ router.get("/users/me", requireAuth, async (req, res): Promise<void> => {
 });
 
 // POST /api/users/sync
-router.post("/users/sync", requireAuth, async (req, res): Promise<void> => {
+router.post("/users/sync", requireClerkSession, async (req, res): Promise<void> => {
   const clerkId = (req as any).clerkId;
   const { email, name, avatarUrl } = req.body;
 

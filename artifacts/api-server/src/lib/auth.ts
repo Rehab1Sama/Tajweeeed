@@ -4,6 +4,20 @@ import { db } from "@workspace/db";
 import { usersTable, enrollmentsTable } from "@workspace/db";
 import { eq, and, gte } from "drizzle-orm";
 
+/**
+ * Verify Clerk session only — does NOT require the user to exist in the local DB.
+ * Use for endpoints that create or sync the user (e.g. POST /api/users/sync).
+ */
+export async function requireClerkSession(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const auth = getAuth(req);
+  if (!auth?.userId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  (req as any).clerkId = auth.userId;
+  next();
+}
+
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const auth = getAuth(req);
   if (!auth?.userId) {
