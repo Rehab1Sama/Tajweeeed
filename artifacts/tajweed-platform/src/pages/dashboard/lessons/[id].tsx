@@ -1,5 +1,6 @@
 import { useGetLesson, useListAudioLibrary, useGetStudentProgress, useUpdateProgress, getGetStudentProgressQueryKey } from "@workspace/api-client-react";
 import { useParams, Link } from "wouter";
+import { lessonsContent } from "@/data/lessonsContent";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, PlayCircle, Headphones, Star, AlertCircle } from "lucide-react";
