@@ -3,7 +3,17 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { BookOpen, Star, Users, Award, PlayCircle, Heart } from "lucide-react";
 
-/* ─── Cloud-shaped card using SVG ellipses ───────────────────────── */
+/* ─── Proper cloud card — arc-based SVG path ─────────────────────── */
+/*
+ * The cloud top is a series of semicircular arcs along a baseline.
+ * Each arc: A rx,ry 0 0,0 dx,0  →  sweep=0 (counter-clockwise in SVG)
+ * = bump rising UPWARD. Radii vary to give natural height variation.
+ * viewBox "0 0 200 60": baseline at y=40, ground at y=60.
+ *
+ * Bumps:  [r=20,w=40]  [r=30,w=60]  [r=25,w=50]  [r=18,w=36]
+ *         small left    large center  medium        small right
+ * Total width coverage: 40+60+50+36 = 186 out of 200
+ */
 function CloudCard({
   children,
   style,
@@ -13,38 +23,36 @@ function CloudCard({
   style?: React.CSSProperties;
   className?: string;
 }) {
-  // All shapes use the same opaque colour so stacking is invisible
-  const fill = "rgb(245,251,255)";
+  const fill = "rgb(246,252,255)";
   return (
     <div
       className={`relative ${className}`}
-      style={{ filter: "drop-shadow(0 8px 22px rgba(80,160,205,0.22))", ...style }}
+      style={{ filter: "drop-shadow(0 8px 24px rgba(75,155,200,0.22))", ...style }}
     >
-      {/* SVG cloud bumps — 4 overlapping ellipses, connected to body below */}
+      {/* Cloud-shaped SVG top */}
       <svg
-        viewBox="0 0 300 58"
+        viewBox="0 0 200 60"
         preserveAspectRatio="none"
-        style={{ display: "block", width: "100%", height: 58, marginBottom: -1 }}
+        style={{ display: "block", width: "100%", height: 60, marginBottom: -1 }}
         aria-hidden
       >
-        {/* leftmost small bump */}
-        <ellipse cx="48"  cy="54" rx="46" ry="40" fill={fill} />
-        {/* left-centre larger bump */}
-        <ellipse cx="118" cy="40" rx="62" ry="52" fill={fill} />
-        {/* centre tallest bump */}
-        <ellipse cx="196" cy="34" rx="66" ry="56" fill={fill} />
-        {/* right bump */}
-        <ellipse cx="268" cy="42" rx="52" ry="46" fill={fill} />
-        {/* floor strip that connects bumps to body */}
-        <rect x="0" y="46" width="300" height="12" fill={fill} />
+        <path
+          d="M0,60 L0,40
+             A20,20 0 0,0 40,40
+             A30,30 0 0,0 100,40
+             A25,25 0 0,0 150,40
+             A18,18 0 0,0 186,40
+             L200,40 L200,60 Z"
+          fill={fill}
+        />
       </svg>
 
-      {/* Card body */}
+      {/* Card body — seamlessly joined */}
       <div
         style={{
           background: fill,
           borderRadius: "0 0 28px 28px",
-          padding: "22px 24px 30px",
+          padding: "20px 24px 28px",
         }}
       >
         {children}
